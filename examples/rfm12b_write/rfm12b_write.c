@@ -53,8 +53,8 @@
 #include "../../rfm12b_config.h"
 #include "../../rfm12b_ioctl.h"
 
-#define PACKET_LEN      10
-#define SEND_DELAY      1000
+#define PACKET_LEN      17
+#define SEND_DELAY      500
 
 static volatile int running;
 
@@ -67,6 +67,7 @@ void sig_handler(int signum)
 int main(int argc, char** argv)
 {
    int fd, len, i, ppos;
+   char byte;
    char* devname, buf[128];
    unsigned long pkt_cnt;
    time_t tt;
@@ -92,8 +93,16 @@ int main(int argc, char** argv)
    running = 1;
    ppos = 0;
    do {
-      for (i=0; i<PACKET_LEN; i++)
-         bytes[i] = (i + ppos) % 255;
+      byte = 0;
+      for (i=0; i<PACKET_LEN; i++) {
+	if(i < 8)
+		byte = ((byte << 1) | 1) & 0xFF;
+	else if(i < 16)
+		byte = ((byte << 1) | 0) & 0xFF;
+	else
+		byte = ppos;
+         bytes[i] = byte; //(i + ppos) % 255;
+      }
       ppos = (ppos + 1) % 255;
       
       len = write(fd, bytes, PACKET_LEN);
