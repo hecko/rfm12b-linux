@@ -410,7 +410,7 @@ rfm12_setup(struct rfm12_data* rfm12)
    // ok, we're now ready to be configured.
    spi_message_init(&msg);
 
-   tr = rfm12_make_spi_transfer(0x80C7 |
+   tr = rfm12_make_spi_transfer(0x80E7 |
          ((rfm12->band_id & 0xff) << 4), tx_buf+0, NULL);
    tr.cs_change = 1;
    spi_message_add_tail(&tr, &msg);
