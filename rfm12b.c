@@ -380,7 +380,7 @@ static int
 rfm12_setup(struct rfm12_data* rfm12)
 {
    struct spi_transfer tr, tr2, tr3, tr4, tr5, tr6, tr7, tr8, tr9,
-     tr10, tr11, tr12, tr13, tr14, tr15;
+     tr10, tr11, tr12, tr13;
    struct spi_message msg;
    u8 tx_buf[30];
    int err;
@@ -415,7 +415,7 @@ rfm12_setup(struct rfm12_data* rfm12)
    tr.cs_change = 1;
    spi_message_add_tail(&tr, &msg);
 
-   tr2 = rfm12_make_spi_transfer(0xA640, tx_buf+2, NULL);
+   tr2 = rfm12_make_spi_transfer(0xA000 | (rfm12->tx_freq_off_12 & 0x5FFF), tx_buf+2, NULL);
    tr2.cs_change = 1;
    spi_message_add_tail(&tr2, &msg);
 
@@ -454,7 +454,7 @@ rfm12_setup(struct rfm12_data* rfm12)
    tr8.cs_change = 1;
    spi_message_add_tail(&tr8, &msg);
 
-   tr9 = rfm12_make_spi_transfer(0x9850, tx_buf+16, NULL);
+   tr9 = rfm12_make_spi_transfer(0x9800 | ((rfm12->tx_bandwidth_4 & 0xF) << 4) | (rfm12->tx_power_3 & 0x7), tx_buf+16, NULL);
    tr9.cs_change = 1;
    spi_message_add_tail(&tr9, &msg);
 
@@ -473,16 +473,6 @@ rfm12_setup(struct rfm12_data* rfm12)
    // set low battery threshold to 2.9V
    tr13 = rfm12_make_spi_transfer(0xC047, tx_buf+24, NULL);
    spi_message_add_tail(&tr13, &msg);
-
-   // Set TX frequency //
-   tr14 = rfm12_make_spi_transfer(0xA000 | (rfm12->tx_freq_off_12 & 0x5FFF), tx_buf+26, NULL);
-   tr14.cs_change = 1;
-   spi_message_add_tail(&tr14, &msg);
-
-   // Set TX bandwidth and power //
-   tr15 = rfm12_make_spi_transfer(0x9800 | ((rfm12->tx_bandwidth_4 & 0xF) << 4) | (rfm12->tx_power_3 & 0x7), tx_buf+28, NULL);
-   tr15.cs_change = 1;
-   spi_message_add_tail(&tr15, &msg);
 
    err = spi_sync(rfm12->spi, &msg);
 
