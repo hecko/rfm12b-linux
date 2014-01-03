@@ -7,3 +7,5 @@ examples/bin/
 Module.symvers
 modules.order
 .tmp_versions
+
+rfm12b_config.h
