@@ -60,7 +60,7 @@ I've included more detailed steps below for the actual Linux distributions I am 
 **Raspberry Pi — Raspbian**
 
 1.    Install the kernel sources for your running kernel, either manually or by using a script such as this: [https://gist.github.com/azbesthu/3893319](https://gist.github.com/azbesthu/38933
-2.    Open the `rfm12b_config.h` file, read it carefully and edit the settings to your liking. Be especially sure to correctly choose the board you are building for.
+2.    Create the `rfm12b_config.h` file by copying from `rfm12b_config.h.dist`, read it carefully and edit the settings to your liking. Be especially sure to correctly choose the board you are building for.
 3.    Clone this repository and run `make`
 4.    Make sure that the RFM12B module is connect
 5.    Load the kernel driver for the SPI interface: `sudo modprobe spi-bcm2708`
@@ -71,7 +71,7 @@ I've included more detailed steps below for the actual Linux distributions I am 
 
 1.    Install the kernel sources for your running kernel, either manually or by using [this script](https://github.com/gkaindl/beaglebone-ubuntu-scripts/blob/master/bb-get-rcn-kernel-source.sh) I made.
 2.    Ensure that the SPI bus driver is enabled via the device-tree. You can do this manually or by running [another script](https://github.com/gkaindl/beaglebone-ubuntu-scripts/blob/master/bb-enable-spi-devicetree.sh) I made (reboot after running this script).
-3.    Open the `rfm12b_config.h` file, read it carefully and edit the settings to your liking. Be especially sure to correctly choose the board you are building for.
+3.    Create the `rfm12b_config.h` file by copying from `rfm12b_config.h.dist`, read it carefully and edit the settings to your liking. Be especially sure to correctly choose the board you are building for.
 4.    Clone this repository and run `make`.
 5.    Make sure that the RFM12B module is connected.
 6.    Load the RFM12B module: `sudo insmod rfm12b.ko`
