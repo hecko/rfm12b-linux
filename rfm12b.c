@@ -38,6 +38,8 @@
 
 #include "rfm12b_ioctl.h"
 #include "rfm12b_jeenode.h"
+#include "iolib.h"
+#include "rxtx.h"
 
 static u8 group_id      = RFM12B_DEFAULT_GROUP_ID;
 static u8 band_id         = RFM12B_DEFAULT_BAND_ID;
@@ -714,6 +716,12 @@ rfm12_finish_sending(struct rfm12_data* rfm12, int success)
       rfm12->out_cur_end -= len;
       rfm12->out_buf_pos = rfm12->out_buf;
       
+      if (rfm12->out_cur_end == rfm12->out_buf) {
+         // If buffer is empty set TX to low
+         pin_low(TX_P, TX_PIN);
+         pin_high(RX_P, RX_PIN);
+      }
+      
       rfm12->pkts_sent++;
       rfm12->bytes_sent += len - RF_EXTRA_LEN;
       
@@ -1165,6 +1173,12 @@ size_t count, loff_t *f_pos)
    if (!CAN_SEND_BYTES_OF_LENGTH(bytes_to_copy))
       wait_event_interruptible(rfm12->wait_write,
          CAN_SEND_BYTES_OF_LENGTH(bytes_to_copy));
+   
+   if (rfm12->out_cur_end == rfm12->out_buf) {
+      // No send in progress
+      pin_low(RX_P, RX_PIN);
+      pin_high(TX_P, TX_PIN);
+   }
 
    copied = bytes_to_copy - copy_from_user(
       rfm12->out_cur_end+offset,
@@ -1641,6 +1655,13 @@ rfm12_init_module(void)
       unregister_chrdev(RFM12B_SPI_MAJOR, rfm12_spi_driver.driver.name);
       platform_module_cleanup();
    }
+   
+   // Configure libio
+   iolib_init();
+   iolib_setdir(RX_P, RX_PIN, DIR_OUT);
+   iolib_setdir(TX_P, TX_PIN, DIR_OUT);
+   pin_low(TX_P, TX_PIN);
+   pin_high(RX_P, RX_PIN);
 
 errReturn:
    if (err) {
@@ -1667,6 +1688,10 @@ rfm12_cleanup_module(void)
    unregister_chrdev(RFM12B_SPI_MAJOR, rfm12_spi_driver.driver.name);
 
    (void)platform_module_cleanup();
+   
+   pin_low(TX_P, TX_PIN);
+   pin_low(RX_P, RX_PIN);
+   iolib_free();
 
    printk(
       KERN_INFO RFM12B_DRV_NAME

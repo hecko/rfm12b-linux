@@ -17,7 +17,8 @@
 # along with rfm12b-linux.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-obj-m += rfm12b.o
+obj-m += krfm12b.o
+krfm12b-objs := rfm12b.o iolib.o
 
 KVERSION := $(shell uname -r)
 
